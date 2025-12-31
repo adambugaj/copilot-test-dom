@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SEO from '../../components/SEO.astro';
+import { getCollection } from 'astro:content';
+
+const { slug } = Astro.params;
+
+const collection = await getCollection('posts');
+const entry = collection.find(e => e.slug === slug);
+
+if (!entry) {
+  throw Astro.redirect('/404');
+}
+
+const { title, description, pubDate, tags } = entry.data;
+---
+<BaseLayout>
+  <SEO
+    title={`${title} — Moje Portal`}
+    description={description}
+    pathname={`/posts/${slug}`}
+    type="article"
+    published={pubDate}
+    tags={tags}
+  />
+  <article>
+    <h1>{title}</h1>
+    <div style="color:#666;font-size:0.9rem;">{new Date(pubDate).toLocaleDateString('pl-PL')}</div>
+    <hr/>
+    <div class="content">
+      <Astro.render slot="default">
+        {entry.body}
+      </Astro.render>
+    </div>
+  </article>
+</BaseLayout>

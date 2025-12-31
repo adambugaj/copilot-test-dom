@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SEO from '../components/SEO.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts');
+posts.sort((a,b)=> (new Date(b.data.pubDate) - new Date(a.data.pubDate)));
+---
+<BaseLayout>
+  <SEO title="Strona główna — Moje Portal" description="Witamy na portalu. Najnowsze wpisy i informacje." pathname="/" />
+  <h1>Witamy na portalu</h1>
+  <p>Lista ostatnich wpisów:</p>
+
+  <ul>
+    {posts.map(post => (
+      <li style="margin:0.5rem 0" key={post.slug}>
+        <a href={`/posts/${post.slug}`}><strong>{post.data.title}</strong></a>
+        <div style="font-size:0.9rem;color:#666;">{new Date(post.data.pubDate).toLocaleDateString('pl-PL')}</div>
+        <p style="margin:0.25rem 0;">{post.data.description}</p>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

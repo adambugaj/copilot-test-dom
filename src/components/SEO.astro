@@ -1,0 +1,74 @@
+---
+/*
+Props:
+- title (string)
+- description (string)
+- pathname (string) relative path e.g. "/posts/moj-wpis"
+- image (string) absolute or relative path
+- type (string) "website" or "article"
+- published (string) ISO date for articles
+- modified (string) ISO date
+- tags (string[])
+*/
+const {
+  title,
+  description,
+  pathname = '/',
+  image = '/favicon.svg',
+  type = 'website',
+  published,
+  modified,
+  tags = []
+} = Astro.props;
+
+const SITE = Astro.site;
+const url = new URL(pathname, SITE).toString();
+const canonical = url;
+const logo = new URL(image, SITE).toString();
+const twitterCard = type === 'article' ? 'summary_large_image' : 'summary';
+---
+<head>
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <meta property="og:type" content={type} />
+  <meta property="og:locale" content="pl_PL" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={logo} />
+  <meta name="twitter:card" content={twitterCard} />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={logo} />
+
+  <!-- Structured data (JSON-LD) -->
+  <script type="application/ld+json">
+    {JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": type === 'article' ? 'Article' : 'WebSite',
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": canonical
+      },
+      "headline": title,
+      "description": description,
+      "image": [logo],
+      "url": canonical,
+      "datePublished": published || undefined,
+      "dateModified": modified || undefined,
+      "publisher": {
+        "@type": "Organization",
+        "name": "Moje Portal",
+        "logo": {
+          "@type": "ImageObject",
+          "url": logo
+        }
+      },
+      "keywords": tags.join(', ')
+    })}
+  </script>
+
+  <!-- allow search engines to index; use robots.txt for global rules -->
+  <meta name="robots" content="index, follow" />
+</head>
